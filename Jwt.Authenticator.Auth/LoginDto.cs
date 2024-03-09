@@ -1,4 +1,4 @@
 ﻿namespace Jwt.Authenticator.Auth
 {
-    public record LoginDto(string user, string password);
+    public record LoginDto(string userName, string emailAddress, DateTime dateOfJoing);
 }

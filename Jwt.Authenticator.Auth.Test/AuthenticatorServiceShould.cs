@@ -9,10 +9,12 @@ namespace Jwt.Authenticator.Auth.Test
     {
         private AuthenticatorService authenticatorService;
         private IConfiguration config;
+        private LoginDto loginDto;
 
         [SetUp]
         public void SetUp()
         {
+            loginDto = new LoginDto("user", "juan@juanito.com", DateTime.Now);
             config = Substitute.For<IConfiguration>();
             authenticatorService = new AuthenticatorService(config);
         }
@@ -20,18 +22,14 @@ namespace Jwt.Authenticator.Auth.Test
         [Test]
         public void GetTokenUserSuccesfully()
         {
-            var loginDto = new LoginDto("user", "juan@juanito.com", DateTime.Now);
-
             var token = authenticatorService.GetToken(loginDto);
 
             token.Should().NotBeEmpty();
         }
 
         [Test]
-        public void AuthSuccessfully()
+        public void AuthSuccessfullyByToken()
         {
-            var loginDto = new LoginDto("userName", "juan@juanito.com", DateTime.Now);
-
             var token = authenticatorService.GetToken(loginDto);
 
             var result = authenticatorService.Auth(token);

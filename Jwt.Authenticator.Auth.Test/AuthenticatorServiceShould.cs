@@ -17,19 +17,13 @@ namespace Jwt.Authenticator.Auth.Test
         public void SetUp()
         {
             loginDto = new Login("user", "juan@juanito.com", DateTime.Now);
-            var inMemorySettings = new Dictionary<string, string> {
-                {"Jwt:Issuer", "Test.com"},
-                {"Jwt:Key", "SecretKey_1111111111100000000011"},
-            };
-            configuration = new ConfigurationBuilder()
-                            .AddInMemoryCollection(inMemorySettings)
-                            .Build();
-            authenticatorService = new AuthenticatorService(configuration);
         }
 
         [Test]
         public void GetTokenUserSuccesfully()
         {
+            MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com");
+
             var token = authenticatorService.GetToken(loginDto);
 
             token.Should().NotBeEmpty();
@@ -38,6 +32,8 @@ namespace Jwt.Authenticator.Auth.Test
         [Test]
         public void AuthSuccessfullyByToken()
         {
+            MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com");
+
             var token = authenticatorService.GetToken(loginDto);
 
             var result = authenticatorService.Auth(token);
@@ -58,17 +54,23 @@ namespace Jwt.Authenticator.Auth.Test
         [Test]
         public void GetArgumentOutOfRangeExceptionWhenSecretKeyIsTooShort()
         {
+            MockConfigurationBuilder("SecretKey", "Test.com");
+
+            Action result = () => authenticatorService.GetToken(loginDto);
+
+            result.Should().Throw<ArgumentOutOfRangeException>().WithMessage("Specified argument was out of the range of valid values. (Parameter 'SecretKey must have at least 32 characters')");
+        }
+
+        private void MockConfigurationBuilder(string key, string issuer)
+        {
             var inMemorySettings = new Dictionary<string, string> {
-                {"Jwt:Issuer", "Test.com"},
-                {"Jwt:Key", "SecretKey_1111111111100000000011"},
+                {"Jwt:Issuer", issuer },
+                {"Jwt:Key", key },
             };
             configuration = new ConfigurationBuilder()
                             .AddInMemoryCollection(inMemorySettings)
                             .Build();
-
-            Action result = () => authenticatorService.GetToken(loginDto);
-
-            result.Should().Throw<ArgumentOutOfRangeException>().WithMessage("SecretKey must have at least 32 characters");
+            authenticatorService = new AuthenticatorService(configuration);
         }
     }
 }

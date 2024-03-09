@@ -4,7 +4,7 @@
     {
         public NullTokenException(string message) : base(message)
         {
-
+            
         }
     }
 }

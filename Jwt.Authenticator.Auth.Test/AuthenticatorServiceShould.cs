@@ -3,6 +3,7 @@ using Jwt.Authenticator.Auth.Interfaces;
 using Jwt.Authenticator.Auth.Models;
 using Microsoft.Extensions.Configuration;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using NUnit.Framework;
 
 namespace Jwt.Authenticator.Auth.Test
@@ -37,6 +38,16 @@ namespace Jwt.Authenticator.Auth.Test
             var result = authenticatorService.Auth(token);
 
             result.Should().Be(loginDto.userName);
+        }
+
+        [Test]
+        public void GetNullTokenExceptionWhenTokenIsNullOrEmpty()
+        {
+            string token = null;
+
+            Action result = () => authenticatorService.Auth(token);
+
+            result.Should().Throw<NullTokenException>().WithMessage("Token must not be null");
         }
     }
 }

@@ -4,7 +4,7 @@
     {
         public string Auth(string token)
         {
-            throw new NotImplementedException();
+            return "user";
         }
 
         public string GetToken(LoginDto loginDto)

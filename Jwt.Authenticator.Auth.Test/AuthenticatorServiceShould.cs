@@ -11,12 +11,12 @@ namespace Jwt.Authenticator.Auth.Test
     {
         private AuthenticatorService authenticatorService;
         private IConfiguration config;
-        private LoginDto loginDto;
+        private Login loginDto;
 
         [SetUp]
         public void SetUp()
         {
-            loginDto = new LoginDto("user", "juan@juanito.com", DateTime.Now);
+            loginDto = new Login("user", "juan@juanito.com", DateTime.Now);
             config = Substitute.For<IConfiguration>();
             authenticatorService = new AuthenticatorService(config);
         }
@@ -37,7 +37,6 @@ namespace Jwt.Authenticator.Auth.Test
             var result = authenticatorService.Auth(token);
 
             result.Should().Be(loginDto.userName);
-
         }
     }
 }

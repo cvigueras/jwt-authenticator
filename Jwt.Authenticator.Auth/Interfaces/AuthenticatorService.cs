@@ -35,7 +35,7 @@ namespace Jwt.Authenticator.Auth.Interfaces
             return userId;
         }
 
-        public string GetToken(LoginDto loginDto)
+        public string GetToken(Login loginDto)
         {
             var issuer = !string.IsNullOrWhiteSpace(_config["Jwt:Issuer"]) ? _config["Jwt:Issuer"] : "Test.com";
             var key = !string.IsNullOrWhiteSpace(_config["Jwt:Key"]) ? _config["Jwt:Key"] : "SecretKey_1111111111100000000011";

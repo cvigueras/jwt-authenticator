@@ -4,7 +4,7 @@
     {
         public string GetToken(LoginDto loginDto)
         {
-            throw new NotImplementedException();
+            return "token";
         }
     }
 }

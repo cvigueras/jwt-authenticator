@@ -30,7 +30,7 @@ namespace Jwt.Authenticator.Auth.Test
         [Test]
         public void AuthSuccessfully()
         {
-            var loginDto = new LoginDto("user", "juan@juanito.com", DateTime.Now);
+            var loginDto = new LoginDto("userName", "juan@juanito.com", DateTime.Now);
 
             var token = authenticatorService.GetToken(loginDto);
 

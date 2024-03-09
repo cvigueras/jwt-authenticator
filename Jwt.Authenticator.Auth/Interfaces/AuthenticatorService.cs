@@ -22,6 +22,7 @@ namespace Jwt.Authenticator.Auth.Interfaces
             {
                 throw new NullTokenException("Token must not be null");
             }
+
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(!string.IsNullOrWhiteSpace(_config["Jwt:Key"]) ? _config["Jwt:Key"] : "SecretKey_1111111111100000000011");
             tokenHandler.ValidateToken(token, new TokenValidationParameters
@@ -41,10 +42,7 @@ namespace Jwt.Authenticator.Auth.Interfaces
 
         public string GetToken(Login loginDto)
         {
-            var issuer = !string.IsNullOrWhiteSpace(_config["Jwt:Issuer"]) ? _config["Jwt:Issuer"] : "Test.com";
-            var key = !string.IsNullOrWhiteSpace(_config["Jwt:Key"]) ? _config["Jwt:Key"] : "SecretKey_1111111111100000000011";
-
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var claims = new[] {
@@ -54,8 +52,8 @@ namespace Jwt.Authenticator.Auth.Interfaces
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
-            var token = new JwtSecurityToken(issuer,
-                issuer,
+            var token = new JwtSecurityToken(_config["Jwt:Issuer"],
+                _config["Jwt:Issuer"],
                 claims,
                 expires: DateTime.Now.AddMinutes(120),
                 signingCredentials: credentials);

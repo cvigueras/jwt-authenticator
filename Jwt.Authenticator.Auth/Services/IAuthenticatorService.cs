@@ -1,4 +1,6 @@
-﻿namespace Jwt.Authenticator.Auth
+﻿using Jwt.Authenticator.Auth.Models;
+
+namespace Jwt.Authenticator.Auth.Services
 {
     public interface IAuthenticatorService
     {

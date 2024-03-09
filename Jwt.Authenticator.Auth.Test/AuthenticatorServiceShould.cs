@@ -1,4 +1,6 @@
 ﻿using FluentAssertions;
+using Jwt.Authenticator.Auth.Interfaces;
+using Jwt.Authenticator.Auth.Models;
 using Microsoft.Extensions.Configuration;
 using NSubstitute;
 using NUnit.Framework;

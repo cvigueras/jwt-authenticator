@@ -1,10 +1,12 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Jwt.Authenticator.Auth.Models;
+using Jwt.Authenticator.Auth.Services;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace Jwt.Authenticator.Auth
+namespace Jwt.Authenticator.Auth.Interfaces
 {
     public class AuthenticatorService : IAuthenticatorService
     {

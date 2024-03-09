@@ -23,5 +23,18 @@ namespace Jwt.Authenticator.Auth.Test
 
             token.Should().NotBeEmpty();
         }
+
+        [Test]
+        public void AuthSuccessfully()
+        {
+            var loginDto = new LoginDto("user", "password");
+
+            var token = authenticatorService.GetToken(loginDto);
+
+            var result = authenticatorService.Auth(token);
+
+            result.Should().Be(loginDto.user);
+
+        }
     }
 }

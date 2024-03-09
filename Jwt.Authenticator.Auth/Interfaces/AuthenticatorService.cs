@@ -18,6 +18,10 @@ namespace Jwt.Authenticator.Auth.Interfaces
 
         public string Auth(string token)
         {
+            if(string.IsNullOrWhiteSpace(token))
+            {
+                throw new NullTokenException("Token must not be null");
+            }
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(!string.IsNullOrWhiteSpace(_config["Jwt:Key"]) ? _config["Jwt:Key"] : "SecretKey_1111111111100000000011");
             tokenHandler.ValidateToken(token, new TokenValidationParameters

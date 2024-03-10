@@ -43,15 +43,15 @@ namespace Jwt.Authenticator.Auth.Interfaces
         {
             try
             {
-                int expirationInMinutes = int.Parse(_config["Jwt:Expiration"]);
+                int expirationInSeconds = int.Parse(_config["Jwt:Expiration"]);
                 var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
                 var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-                var tokenOptions = GetTokenOptions(expirationInMinutes, credentials, userClaims);
+                var tokenOptions = GetTokenOptions(expirationInSeconds, credentials, userClaims);
 
                 return new Token
                 {
                     access_token = new JwtSecurityTokenHandler().WriteToken(tokenOptions),
-                    expires_in = GetExpirationInSeconds(expirationInMinutes),
+                    expires_in = expirationInSeconds,
                     refresh_token = GenerateRefreshToken(),
                 };
             }
@@ -64,19 +64,14 @@ namespace Jwt.Authenticator.Auth.Interfaces
                 return null;
             }
         }
-
-        public Token RefreshToken(IEnumerable<Claim> claims, string access_token)
+        public string GenerateRefreshToken()
         {
-            SecurityToken validatedToken;
-            var principal = GetClaimsPrincipal(access_token, tokenHandler, GetTokenValidationParameters((byte[]?)Encoding.ASCII.GetBytes(_config["Jwt:Key"])), out validatedToken);
-            var token = GenerateAccessToken(claims);
-            var refresh_token = GenerateRefreshToken();
-            return new Token
+            var randomNumber = new byte[32];
+            using (var rng = RandomNumberGenerator.Create())
             {
-                access_token = token.access_token,
-                refresh_token = refresh_token,
-                expires_in = token.expires_in
-            };
+                rng.GetBytes(randomNumber);
+                return Convert.ToBase64String(randomNumber);
+            }
         }
 
         private JwtSecurityToken GetTokenOptions(int expirationInMinutes, SigningCredentials credentials, IEnumerable<Claim> claims)
@@ -90,7 +85,10 @@ namespace Jwt.Authenticator.Auth.Interfaces
                );
         }
 
-        private static ClaimsPrincipal GetClaimsPrincipal(string token, JwtSecurityTokenHandler tokenHandler, TokenValidationParameters validationParameters, out SecurityToken validatedToken)
+        private static ClaimsPrincipal GetClaimsPrincipal(string token,
+                                                          JwtSecurityTokenHandler tokenHandler,
+                                                          TokenValidationParameters validationParameters,
+                                                          out SecurityToken validatedToken)
         {
             return tokenHandler.ValidateToken(token, validationParameters, out validatedToken);
         }
@@ -105,20 +103,6 @@ namespace Jwt.Authenticator.Auth.Interfaces
                 ValidateAudience = false,
                 ClockSkew = TimeSpan.Zero
             };
-        }
-        private string GenerateRefreshToken()
-        {
-            var randomNumber = new byte[32];
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(randomNumber);
-                return Convert.ToBase64String(randomNumber);
-            }
-        }
-
-        private static int GetExpirationInSeconds(int expirationInMinutes)
-        {
-            return expirationInMinutes * 60;
         }
     }
 }

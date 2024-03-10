@@ -7,6 +7,6 @@ namespace Jwt.Authenticator.Auth.Services
     {
         string ValidateJwtToken(string token);
         Token GenerateAccessToken(IEnumerable<Claim> userClaims);
-        Token RefreshToken(IEnumerable<Claim> claims, string access_token)
+        string GenerateRefreshToken();
     }
 }

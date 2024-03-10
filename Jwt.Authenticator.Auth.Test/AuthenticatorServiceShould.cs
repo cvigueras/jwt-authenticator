@@ -1,17 +1,14 @@
 ﻿using FluentAssertions;
 using Jwt.Authenticator.Auth.Interfaces;
-using Jwt.Authenticator.Auth.Models;
 using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace Jwt.Authenticator.Auth.Test
 {
     public class AuthenticatorServiceShould
     {
-        private const int Expiration = 60;
-        private JwtSecurityTokenHandler tokenHandler;
+        private const int ExpirationInSeconds = 3600;
         private AuthenticatorService authenticatorService;
         private IConfiguration configuration;
         private IEnumerable<Claim> claims;
@@ -32,7 +29,7 @@ namespace Jwt.Authenticator.Auth.Test
         [Test]
         public void GetTokenUserSuccesfully()
         {
-            MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com", Expiration);
+            MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com", ExpirationInSeconds);
 
             var token = authenticatorService.GenerateAccessToken(claims);
 
@@ -42,7 +39,7 @@ namespace Jwt.Authenticator.Auth.Test
         [Test]
         public void AuthSuccessfullyByToken()
         {
-            MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com", Expiration);
+            MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com", ExpirationInSeconds);
 
             var token = authenticatorService.GenerateAccessToken(claims);
 
@@ -64,7 +61,7 @@ namespace Jwt.Authenticator.Auth.Test
         [Test]
         public void GetArgumentOutOfRangeExceptionWhenSecretKeyIsTooShort()
         {
-            MockConfigurationBuilder("SecretKey", "Test.com", Expiration);
+            MockConfigurationBuilder("SecretKey", "Test.com", ExpirationInSeconds);
 
             Action result = () => authenticatorService.GenerateAccessToken(claims);
 
@@ -75,33 +72,21 @@ namespace Jwt.Authenticator.Auth.Test
         [Test]
         public void ExpiresTokenInOneHour()
         {
-            MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com", Expiration);
+            MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com", ExpirationInSeconds);
 
             var token = authenticatorService.GenerateAccessToken(claims);
 
-            token.expires_in.Should().Be(Expiration * 60);
+            token.expires_in.Should().Be(ExpirationInSeconds);
         }
 
         [Test]
         public void GetRefreshTokenUserSuccesfully()
         {
-            MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com", Expiration);
+            MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com", ExpirationInSeconds);
 
-            var token = authenticatorService.GenerateAccessToken(claims);
+            var refresh_token = authenticatorService.GenerateRefreshToken();
 
-            token.refresh_token.Should().NotBeNull();
-        }
-
-        [Test]
-        public void RefreshTokenSuccessfully()
-        {
-            MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com", Expiration);
-
-            var token = authenticatorService.GenerateAccessToken(claims);
-            token = authenticatorService.RefreshToken(claims, token.access_token);
-            var result = authenticatorService.ValidateJwtToken(token.access_token);
-
-            result.Should().Be(user);
+            refresh_token.Should().NotBeNull();
         }
 
         private void MockConfigurationBuilder(string key, string issuer, int expiration)

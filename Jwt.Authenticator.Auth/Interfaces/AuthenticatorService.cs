@@ -24,20 +24,31 @@ namespace Jwt.Authenticator.Auth.Interfaces
             }
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_config["Jwt:Key"]);
-            tokenHandler.ValidateToken(token, new TokenValidationParameters
+            TokenValidationParameters validationParameters = GetTokenValidationParameters((byte[]?)Encoding.ASCII.GetBytes(_config["Jwt:Key"]));
+            SecurityToken validatedToken;
+            var principal = ValidateToken(token, tokenHandler, validationParameters, out validatedToken);
+
+            var jwtToken = (JwtSecurityToken)validatedToken;
+            var userId = jwtToken.Claims.First(x => x.Type == "sub").Value;
+
+            return userId;
+        }
+
+        private static ClaimsPrincipal ValidateToken(string token, JwtSecurityTokenHandler tokenHandler, TokenValidationParameters validationParameters, out SecurityToken validatedToken)
+        {
+            return tokenHandler.ValidateToken(token, validationParameters, out validatedToken);
+        }
+
+        private static TokenValidationParameters GetTokenValidationParameters(byte[] key)
+        {
+            return new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(key),
                 ValidateIssuer = false,
                 ValidateAudience = false,
                 ClockSkew = TimeSpan.Zero
-            }, out SecurityToken validatedToken);
-
-            var jwtToken = (JwtSecurityToken)validatedToken;
-            var userId = jwtToken.Claims.First(x => x.Type == "sub").Value;
-
-            return userId;
+            };
         }
 
         public Token GenerateAccessToken(Login loginDto)

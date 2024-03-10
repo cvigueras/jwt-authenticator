@@ -2,6 +2,7 @@
 using Jwt.Authenticator.Auth.Interfaces;
 using Jwt.Authenticator.Auth.Models;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json.Linq;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -26,7 +27,7 @@ namespace Jwt.Authenticator.Auth.Test
 
             var token = authenticatorService.GetToken(loginDto);
 
-            token.Should().NotBeEmpty();
+            token.Should().NotBeNull();
         }
 
         [Test]
@@ -36,7 +37,7 @@ namespace Jwt.Authenticator.Auth.Test
 
             var token = authenticatorService.GetToken(loginDto);
 
-            var result = authenticatorService.Auth(token);
+            var result = authenticatorService.Auth(token.access_token);
 
             result.Should().Be(loginDto.userName);
         }
@@ -59,6 +60,17 @@ namespace Jwt.Authenticator.Auth.Test
             Action result = () => authenticatorService.GetToken(loginDto);
 
             result.Should().Throw<ArgumentOutOfRangeException>().WithMessage("Specified argument was out of the range of valid values. (Parameter 'SecretKey must have at least 32 characters')");
+        }
+
+        [Test]
+        public void ExpiresTokenInTwoHours()
+        {
+            MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com");
+
+            var token = authenticatorService.GetToken(loginDto);
+
+            var now = new DateTimeOffset(DateTime.UtcNow.AddMinutes(120));
+            token.expires_in.Should().BeInRange((int)now.ToUnixTimeSeconds(), (int)now.ToUnixTimeSeconds() + 5);
         }
 
         private void MockConfigurationBuilder(string key, string issuer)

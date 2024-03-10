@@ -35,7 +35,6 @@ namespace Jwt.Authenticator.Auth.Interfaces
             return userId;
         }
 
-
         public Token GenerateAccessToken(Login loginDto)
         {
             try
@@ -51,7 +50,8 @@ namespace Jwt.Authenticator.Auth.Interfaces
                 return new Token
                 {
                     access_token = new JwtSecurityTokenHandler().WriteToken(tokenOptions),
-                    expires_in = GetExpirationInSeconds(expirationInMinutes)
+                    expires_in = GetExpirationInSeconds(expirationInMinutes),
+                    refresh_token = GenerateRefreshToken(),
                 };
             }
             catch (ArgumentOutOfRangeException ex)
@@ -101,7 +101,7 @@ namespace Jwt.Authenticator.Auth.Interfaces
                 ClockSkew = TimeSpan.Zero
             };
         }
-        public string GenerateRefreshToken(Login loginDto)
+        private string GenerateRefreshToken()
         {
             var randomNumber = new byte[32];
             using (var rng = RandomNumberGenerator.Create())

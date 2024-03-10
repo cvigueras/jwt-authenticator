@@ -41,10 +41,11 @@ namespace Jwt.Authenticator.Auth.Interfaces
             return userId;
         }
 
-        public string GetToken(Login loginDto)
+        public Token GetToken(Login loginDto)
         {
             try
             {
+                int expirationInMinutes = int.Parse(_config["Jwt:Expiration"]);
                 var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
                 var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
@@ -58,10 +59,15 @@ namespace Jwt.Authenticator.Auth.Interfaces
                 var token = new JwtSecurityToken(_config["Jwt:Issuer"],
                     _config["Jwt:Issuer"],
                     claims,
-                    expires: DateTime.Now.AddMinutes(120),
+                    expires: DateTime.Now.AddMinutes(expirationInMinutes),
                     signingCredentials: credentials);
 
-                return new JwtSecurityTokenHandler().WriteToken(token);
+                return new Token
+                {
+                    access_token = new JwtSecurityTokenHandler().WriteToken(token),
+                    expires_in = GetExpirationInSeconds(expirationInMinutes)
+                };
+                //return new JwtSecurityTokenHandler().WriteToken(token);
             }
             catch (ArgumentOutOfRangeException ex)
             {
@@ -71,6 +77,11 @@ namespace Jwt.Authenticator.Auth.Interfaces
             {
                 return null;
             }
+        }
+
+        private static int GetExpirationInSeconds(int expirationInMinutes)
+        {
+            return expirationInMinutes * 60;
         }
     }
 }

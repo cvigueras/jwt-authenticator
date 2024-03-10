@@ -23,7 +23,7 @@ namespace Jwt.Authenticator.Auth.Test
         [Test]
         public void GetTokenUserSuccesfully()
         {
-            MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com");
+            MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com", 60);
 
             var token = authenticatorService.GetToken(loginDto);
 
@@ -33,7 +33,7 @@ namespace Jwt.Authenticator.Auth.Test
         [Test]
         public void AuthSuccessfullyByToken()
         {
-            MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com");
+            MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com", 60);
 
             var token = authenticatorService.GetToken(loginDto);
 
@@ -55,7 +55,7 @@ namespace Jwt.Authenticator.Auth.Test
         [Test]
         public void GetArgumentOutOfRangeExceptionWhenSecretKeyIsTooShort()
         {
-            MockConfigurationBuilder("SecretKey", "Test.com");
+            MockConfigurationBuilder("SecretKey", "Test.com", 60);
 
             Action result = () => authenticatorService.GetToken(loginDto);
 
@@ -63,21 +63,21 @@ namespace Jwt.Authenticator.Auth.Test
         }
 
         [Test]
-        public void ExpiresTokenInTwoHours()
+        public void ExpiresTokenInOneHour()
         {
-            MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com");
+            MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com", 60);
 
             var token = authenticatorService.GetToken(loginDto);
 
-            var now = new DateTimeOffset(DateTime.UtcNow.AddMinutes(120));
-            token.expires_in.Should().BeInRange((int)now.ToUnixTimeSeconds(), (int)now.ToUnixTimeSeconds() + 5);
+            token.expires_in.Should().Be(60*60);
         }
 
-        private void MockConfigurationBuilder(string key, string issuer)
+        private void MockConfigurationBuilder(string key, string issuer, int expiration)
         {
             var inMemorySettings = new Dictionary<string, string> {
                 {"Jwt:Issuer", issuer },
                 {"Jwt:Key", key },
+                {"Jwt:Expiration", expiration.ToString() }
             };
             configuration = new ConfigurationBuilder()
                             .AddInMemoryCollection(inMemorySettings)

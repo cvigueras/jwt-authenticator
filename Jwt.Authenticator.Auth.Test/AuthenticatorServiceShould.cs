@@ -3,20 +3,30 @@ using Jwt.Authenticator.Auth.Interfaces;
 using Jwt.Authenticator.Auth.Models;
 using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace Jwt.Authenticator.Auth.Test
 {
     public class AuthenticatorServiceShould
     {
         private const int Expiration = 60;
+        private JwtSecurityTokenHandler tokenHandler;
         private AuthenticatorService authenticatorService;
         private IConfiguration configuration;
-        private Login loginDto;
+        private IEnumerable<Claim> claims;
+        string user = "user";
+        string email = "juan@juanito.com";
 
         [SetUp]
         public void SetUp()
         {
-            loginDto = new Login("user", "juan@juanito.com", DateTime.Now);
+            
+            claims = new[]
+            {
+                new Claim(ClaimTypes.Name, user),
+                new Claim(ClaimTypes.Email, email),
+            };
         }
 
         [Test]
@@ -24,7 +34,7 @@ namespace Jwt.Authenticator.Auth.Test
         {
             MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com", Expiration);
 
-            var token = authenticatorService.GenerateAccessToken(loginDto);
+            var token = authenticatorService.GenerateAccessToken(claims);
 
             token.Should().NotBeNull();
         }
@@ -34,11 +44,11 @@ namespace Jwt.Authenticator.Auth.Test
         {
             MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com", Expiration);
 
-            var token = authenticatorService.GenerateAccessToken(loginDto);
+            var token = authenticatorService.GenerateAccessToken(claims);
 
             var result = authenticatorService.ValidateJwtToken(token.access_token);
 
-            result.Should().Be(loginDto.userName);
+            result.Should().Be(user);
         }
 
         [Test]
@@ -56,7 +66,7 @@ namespace Jwt.Authenticator.Auth.Test
         {
             MockConfigurationBuilder("SecretKey", "Test.com", Expiration);
 
-            Action result = () => authenticatorService.GenerateAccessToken(loginDto);
+            Action result = () => authenticatorService.GenerateAccessToken(claims);
 
             result.Should().Throw<ArgumentOutOfRangeException>().WithMessage("Specified argument was out of the range of valid values. " +
                 "(Parameter 'SecretKey must have at least 32 characters')");
@@ -67,7 +77,7 @@ namespace Jwt.Authenticator.Auth.Test
         {
             MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com", Expiration);
 
-            var token = authenticatorService.GenerateAccessToken(loginDto);
+            var token = authenticatorService.GenerateAccessToken(claims);
 
             token.expires_in.Should().Be(Expiration * 60);
         }
@@ -77,9 +87,21 @@ namespace Jwt.Authenticator.Auth.Test
         {
             MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com", Expiration);
 
-            var token = authenticatorService.GenerateAccessToken(loginDto);
+            var token = authenticatorService.GenerateAccessToken(claims);
 
             token.refresh_token.Should().NotBeNull();
+        }
+
+        [Test]
+        public void RefreshTokenSuccessfully()
+        {
+            MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com", Expiration);
+
+            var token = authenticatorService.GenerateAccessToken(claims);
+            token = authenticatorService.RefreshToken(claims, token.access_token);
+            var result = authenticatorService.ValidateJwtToken(token.access_token);
+
+            result.Should().Be(user);
         }
 
         private void MockConfigurationBuilder(string key, string issuer, int expiration)

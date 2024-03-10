@@ -12,9 +12,11 @@ namespace Jwt.Authenticator.Auth.Interfaces
     public class AuthenticatorService : IAuthenticatorService
     {
         private IConfiguration _config;
+        private JwtSecurityTokenHandler tokenHandler;
         public AuthenticatorService(IConfiguration config)
         {
             _config = config;
+            tokenHandler = new JwtSecurityTokenHandler();
         }
 
         public string ValidateJwtToken(string token)
@@ -24,28 +26,27 @@ namespace Jwt.Authenticator.Auth.Interfaces
                 throw new NullTokenException("Token must not be null");
             }
 
-            var tokenHandler = new JwtSecurityTokenHandler();
             TokenValidationParameters validationParameters = GetTokenValidationParameters((byte[]?)Encoding.ASCII.GetBytes(_config["Jwt:Key"]));
             SecurityToken validatedToken;
-            ValidateToken(token, tokenHandler, validationParameters, out validatedToken);
+            var principal = GetClaimsPrincipal(token, tokenHandler, validationParameters, out validatedToken);
 
-            var jwtToken = (JwtSecurityToken)validatedToken;
-            var userId = jwtToken.Claims.First(x => x.Type == "sub").Value;
+            if (validatedToken != null)
+            {
+                var jwtToken = (JwtSecurityToken)validatedToken;
+                return principal.Claims.Where(c => c.Type == ClaimTypes.Name).Select(c => c.Value).SingleOrDefault();
 
-            return userId;
+            }
+            return null;
         }
 
-        public Token GenerateAccessToken(Login loginDto)
+        public Token GenerateAccessToken(IEnumerable<Claim> userClaims)
         {
             try
             {
                 int expirationInMinutes = int.Parse(_config["Jwt:Expiration"]);
                 var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
                 var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
-                Claim[] claims = GetClaims(loginDto);
-
-                var tokenOptions = GetTokenOptions(expirationInMinutes, credentials, claims);
+                var tokenOptions = GetTokenOptions(expirationInMinutes, credentials, userClaims);
 
                 return new Token
                 {
@@ -64,17 +65,21 @@ namespace Jwt.Authenticator.Auth.Interfaces
             }
         }
 
-        private static Claim[] GetClaims(Login loginDto)
+        public Token RefreshToken(IEnumerable<Claim> claims, string access_token)
         {
-            return new[] {
-                new Claim(JwtRegisteredClaimNames.Sub, loginDto.userName),
-                new Claim(JwtRegisteredClaimNames.Email, loginDto.emailAddress),
-                new Claim("DateOfJoing", loginDto.dateOfJoing.ToString("yyyy-MM-dd")),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            SecurityToken validatedToken;
+            var principal = GetClaimsPrincipal(access_token, tokenHandler, GetTokenValidationParameters((byte[]?)Encoding.ASCII.GetBytes(_config["Jwt:Key"])), out validatedToken);
+            var token = GenerateAccessToken(claims);
+            var refresh_token = GenerateRefreshToken();
+            return new Token
+            {
+                access_token = token.access_token,
+                refresh_token = refresh_token,
+                expires_in = token.expires_in
             };
         }
 
-        private JwtSecurityToken GetTokenOptions(int expirationInMinutes, SigningCredentials credentials, Claim[] claims)
+        private JwtSecurityToken GetTokenOptions(int expirationInMinutes, SigningCredentials credentials, IEnumerable<Claim> claims)
         {
             return new JwtSecurityToken(
                    issuer: _config["Jwt:Issuer"],
@@ -85,7 +90,7 @@ namespace Jwt.Authenticator.Auth.Interfaces
                );
         }
 
-        private static ClaimsPrincipal ValidateToken(string token, JwtSecurityTokenHandler tokenHandler, TokenValidationParameters validationParameters, out SecurityToken validatedToken)
+        private static ClaimsPrincipal GetClaimsPrincipal(string token, JwtSecurityTokenHandler tokenHandler, TokenValidationParameters validationParameters, out SecurityToken validatedToken)
         {
             return tokenHandler.ValidateToken(token, validationParameters, out validatedToken);
         }
@@ -115,6 +120,5 @@ namespace Jwt.Authenticator.Auth.Interfaces
         {
             return expirationInMinutes * 60;
         }
-
     }
 }

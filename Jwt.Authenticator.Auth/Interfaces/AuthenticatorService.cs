@@ -26,7 +26,7 @@ namespace Jwt.Authenticator.Auth.Interfaces
             var tokenHandler = new JwtSecurityTokenHandler();
             TokenValidationParameters validationParameters = GetTokenValidationParameters((byte[]?)Encoding.ASCII.GetBytes(_config["Jwt:Key"]));
             SecurityToken validatedToken;
-            var principal = ValidateToken(token, tokenHandler, validationParameters, out validatedToken);
+            ValidateToken(token, tokenHandler, validationParameters, out validatedToken);
 
             var jwtToken = (JwtSecurityToken)validatedToken;
             var userId = jwtToken.Claims.First(x => x.Type == "sub").Value;
@@ -89,10 +89,15 @@ namespace Jwt.Authenticator.Auth.Interfaces
                 return null;
             }
         }
+        public Token GenerateRefreshToken(Login loginDto)
+        {
+            throw new NotImplementedException();
+        }
 
         private static int GetExpirationInSeconds(int expirationInMinutes)
         {
             return expirationInMinutes * 60;
         }
+
     }
 }

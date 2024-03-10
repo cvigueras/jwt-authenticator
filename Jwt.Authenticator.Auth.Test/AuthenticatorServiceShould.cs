@@ -2,8 +2,6 @@
 using Jwt.Authenticator.Auth.Interfaces;
 using Jwt.Authenticator.Auth.Models;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json.Linq;
-using NSubstitute;
 using NUnit.Framework;
 
 namespace Jwt.Authenticator.Auth.Test
@@ -72,6 +70,16 @@ namespace Jwt.Authenticator.Auth.Test
             var token = authenticatorService.GenerateAccessToken(loginDto);
 
             token.expires_in.Should().Be(Expiration * 60);
+        }
+
+        [Test]
+        public void GetRefreshTokenUserSuccesfully()
+        {
+            MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com", Expiration);
+
+            var token = authenticatorService.GenerateRefreshToken(loginDto);
+
+            token.refresh_token.Should().NotBeNull();
         }
 
         private void MockConfigurationBuilder(string key, string issuer, int expiration)

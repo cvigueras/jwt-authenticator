@@ -10,6 +10,7 @@ namespace Jwt.Authenticator.Auth.Test
 {
     public class AuthenticatorServiceShould
     {
+        private const int Expiration = 60;
         private AuthenticatorService authenticatorService;
         private IConfiguration configuration;
         private Login loginDto;
@@ -23,7 +24,7 @@ namespace Jwt.Authenticator.Auth.Test
         [Test]
         public void GetTokenUserSuccesfully()
         {
-            MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com", 60);
+            MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com", Expiration);
 
             var token = authenticatorService.GetToken(loginDto);
 
@@ -33,7 +34,7 @@ namespace Jwt.Authenticator.Auth.Test
         [Test]
         public void AuthSuccessfullyByToken()
         {
-            MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com", 60);
+            MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com", Expiration);
 
             var token = authenticatorService.GetToken(loginDto);
 
@@ -55,21 +56,22 @@ namespace Jwt.Authenticator.Auth.Test
         [Test]
         public void GetArgumentOutOfRangeExceptionWhenSecretKeyIsTooShort()
         {
-            MockConfigurationBuilder("SecretKey", "Test.com", 60);
+            MockConfigurationBuilder("SecretKey", "Test.com", Expiration);
 
             Action result = () => authenticatorService.GetToken(loginDto);
 
-            result.Should().Throw<ArgumentOutOfRangeException>().WithMessage("Specified argument was out of the range of valid values. (Parameter 'SecretKey must have at least 32 characters')");
+            result.Should().Throw<ArgumentOutOfRangeException>().WithMessage("Specified argument was out of the range of valid values. " +
+                "(Parameter 'SecretKey must have at least 32 characters')");
         }
 
         [Test]
         public void ExpiresTokenInOneHour()
         {
-            MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com", 60);
+            MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com", Expiration);
 
             var token = authenticatorService.GetToken(loginDto);
 
-            token.expires_in.Should().Be(60*60);
+            token.expires_in.Should().Be(Expiration * 60);
         }
 
         private void MockConfigurationBuilder(string key, string issuer, int expiration)
@@ -77,7 +79,8 @@ namespace Jwt.Authenticator.Auth.Test
             var inMemorySettings = new Dictionary<string, string> {
                 {"Jwt:Issuer", issuer },
                 {"Jwt:Key", key },
-                {"Jwt:Expiration", expiration.ToString() }
+                {"Jwt:Expiration", expiration.ToString() },
+                {"Jwt:Audicence", "https://localhost:5001" },
             };
             configuration = new ConfigurationBuilder()
                             .AddInMemoryCollection(inMemorySettings)

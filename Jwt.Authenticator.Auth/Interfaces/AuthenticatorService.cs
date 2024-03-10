@@ -3,7 +3,6 @@ using Jwt.Authenticator.Auth.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Text;
 
@@ -19,13 +18,13 @@ namespace Jwt.Authenticator.Auth.Interfaces
 
         public string Auth(string token)
         {
-            if(string.IsNullOrWhiteSpace(token))
+            if (string.IsNullOrWhiteSpace(token))
             {
                 throw new NullTokenException("Token must not be null");
             }
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(!string.IsNullOrWhiteSpace(_config["Jwt:Key"]) ? _config["Jwt:Key"] : "SecretKey_1111111111100000000011");
+            var key = Encoding.ASCII.GetBytes(_config["Jwt:Key"]);
             tokenHandler.ValidateToken(token, new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
@@ -56,24 +55,25 @@ namespace Jwt.Authenticator.Auth.Interfaces
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
-                var token = new JwtSecurityToken(_config["Jwt:Issuer"],
-                    _config["Jwt:Issuer"],
-                    claims,
-                    expires: DateTime.Now.AddMinutes(expirationInMinutes),
-                    signingCredentials: credentials);
+                var tokenOptions = new JwtSecurityToken(
+                       issuer: _config["Jwt:Issuer"],
+                       audience: _config["Jwt:Audience"],
+                       claims: claims,
+                       expires: DateTime.Now.AddMinutes(expirationInMinutes),
+                       signingCredentials: credentials
+                   );
 
                 return new Token
                 {
-                    access_token = new JwtSecurityTokenHandler().WriteToken(token),
+                    access_token = new JwtSecurityTokenHandler().WriteToken(tokenOptions),
                     expires_in = GetExpirationInSeconds(expirationInMinutes)
                 };
-                //return new JwtSecurityTokenHandler().WriteToken(token);
             }
             catch (ArgumentOutOfRangeException ex)
             {
                 throw new ArgumentOutOfRangeException("SecretKey must have at least 32 characters");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return null;
             }

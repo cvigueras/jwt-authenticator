@@ -26,7 +26,7 @@ namespace Jwt.Authenticator.Auth.Test
         {
             MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com", Expiration);
 
-            var token = authenticatorService.GetToken(loginDto);
+            var token = authenticatorService.GenerateAccessToken(loginDto);
 
             token.Should().NotBeNull();
         }
@@ -36,9 +36,9 @@ namespace Jwt.Authenticator.Auth.Test
         {
             MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com", Expiration);
 
-            var token = authenticatorService.GetToken(loginDto);
+            var token = authenticatorService.GenerateAccessToken(loginDto);
 
-            var result = authenticatorService.Auth(token.access_token);
+            var result = authenticatorService.ValidateJwtToken(token.access_token);
 
             result.Should().Be(loginDto.userName);
         }
@@ -48,7 +48,7 @@ namespace Jwt.Authenticator.Auth.Test
         {
             string token = null;
 
-            Action result = () => authenticatorService.Auth(token);
+            Action result = () => authenticatorService.ValidateJwtToken(token);
 
             result.Should().Throw<NullTokenException>().WithMessage("Token must not be null");
         }
@@ -58,7 +58,7 @@ namespace Jwt.Authenticator.Auth.Test
         {
             MockConfigurationBuilder("SecretKey", "Test.com", Expiration);
 
-            Action result = () => authenticatorService.GetToken(loginDto);
+            Action result = () => authenticatorService.GenerateAccessToken(loginDto);
 
             result.Should().Throw<ArgumentOutOfRangeException>().WithMessage("Specified argument was out of the range of valid values. " +
                 "(Parameter 'SecretKey must have at least 32 characters')");
@@ -69,7 +69,7 @@ namespace Jwt.Authenticator.Auth.Test
         {
             MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com", Expiration);
 
-            var token = authenticatorService.GetToken(loginDto);
+            var token = authenticatorService.GenerateAccessToken(loginDto);
 
             token.expires_in.Should().Be(Expiration * 60);
         }

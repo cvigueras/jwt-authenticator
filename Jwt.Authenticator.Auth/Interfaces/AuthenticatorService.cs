@@ -16,7 +16,7 @@ namespace Jwt.Authenticator.Auth.Interfaces
             _config = config;
         }
 
-        public string Auth(string token)
+        public string ValidateJwtToken(string token)
         {
             if (string.IsNullOrWhiteSpace(token))
             {
@@ -40,7 +40,7 @@ namespace Jwt.Authenticator.Auth.Interfaces
             return userId;
         }
 
-        public Token GetToken(Login loginDto)
+        public Token GenerateAccessToken(Login loginDto)
         {
             try
             {

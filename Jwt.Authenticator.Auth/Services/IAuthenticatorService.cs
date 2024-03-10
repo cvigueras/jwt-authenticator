@@ -4,7 +4,7 @@ namespace Jwt.Authenticator.Auth.Services
 {
     public interface IAuthenticatorService
     {
-        Token GetToken(Login loginDto);
-        string Auth(string token);
+        Token GenerateAccessToken(Login loginDto);
+        string ValidateJwtToken(string token);
     }
 }

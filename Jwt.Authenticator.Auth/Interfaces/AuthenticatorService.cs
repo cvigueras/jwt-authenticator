@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Jwt.Authenticator.Auth.Interfaces
@@ -89,9 +90,14 @@ namespace Jwt.Authenticator.Auth.Interfaces
                 return null;
             }
         }
-        public Token GenerateRefreshToken(Login loginDto)
+        public string GenerateRefreshToken(Login loginDto)
         {
-            throw new NotImplementedException();
+            var randomNumber = new byte[32];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(randomNumber);
+                return Convert.ToBase64String(randomNumber);
+            }
         }
 
         private static int GetExpirationInSeconds(int expirationInMinutes)

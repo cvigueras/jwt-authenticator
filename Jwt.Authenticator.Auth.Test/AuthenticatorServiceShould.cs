@@ -77,9 +77,9 @@ namespace Jwt.Authenticator.Auth.Test
         {
             MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com", Expiration);
 
-            var token = authenticatorService.GenerateRefreshToken(loginDto);
+            var refresh_token = authenticatorService.GenerateRefreshToken(loginDto);
 
-            token.refresh_token.Should().NotBeNull();
+            refresh_token.Should().NotBeNull();
         }
 
         private void MockConfigurationBuilder(string key, string issuer, int expiration)

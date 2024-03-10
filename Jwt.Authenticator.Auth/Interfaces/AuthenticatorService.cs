@@ -30,13 +30,12 @@ namespace Jwt.Authenticator.Auth.Interfaces
             SecurityToken validatedToken;
             var principal = GetClaimsPrincipal(token, tokenHandler, validationParameters, out validatedToken);
 
-            if (validatedToken != null)
+            if (validatedToken == null)
             {
-                var jwtToken = (JwtSecurityToken)validatedToken;
-                return principal.Claims.Where(c => c.Type == ClaimTypes.Name).Select(c => c.Value).SingleOrDefault();
-
+                return null;
             }
-            return null;
+            var jwtToken = (JwtSecurityToken)validatedToken;
+            return principal.Claims.Where(c => c.Type == ClaimTypes.Name).Select(c => c.Value).SingleOrDefault();
         }
 
         public Token GenerateAccessToken(IEnumerable<Claim> userClaims)

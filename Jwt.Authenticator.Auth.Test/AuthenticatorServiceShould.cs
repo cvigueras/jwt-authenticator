@@ -18,7 +18,6 @@ namespace Jwt.Authenticator.Auth.Test
         [SetUp]
         public void SetUp()
         {
-            
             claims = new[]
             {
                 new Claim(ClaimTypes.Name, user),
@@ -40,7 +39,6 @@ namespace Jwt.Authenticator.Auth.Test
         public void AuthSuccessfullyByToken()
         {
             MockConfigurationBuilder("SecretKey_1111111111100000000011", "Test.com", ExpirationInSeconds);
-
             var token = authenticatorService.GenerateAccessToken(claims);
 
             var result = authenticatorService.ValidateJwtToken(token.access_token);

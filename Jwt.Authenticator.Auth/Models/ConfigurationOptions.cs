@@ -1,4 +1,6 @@
-﻿namespace Jwt.Authenticator.Auth.Models
+﻿using System.Text;
+
+namespace Jwt.Authenticator.Auth.Models
 {
     public class ConfigurationOptions
     {
@@ -8,15 +10,15 @@
         public string? Audience { get; }
 
 
-        private ConfigurationOptions(byte[]? key, int? expirationInSeconds, string issuer, string audience)
+        private ConfigurationOptions(string key, int? expirationInSeconds, string issuer, string audience)
         {
-            Key = key;
+            Key = Encoding.UTF8.GetBytes(key);
             ExpirationInSeconds = expirationInSeconds;
             Issuer = issuer;
             Audience = audience;
         }
 
-        public static ConfigurationOptions Create(byte[]? key, int? expirationInSeconds, string issuer, string audience)
+        public static ConfigurationOptions Create(string key, int? expirationInSeconds, string issuer, string audience)
         {
             return new ConfigurationOptions(key, expirationInSeconds, issuer, audience);
         }

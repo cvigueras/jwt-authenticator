@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
+using Jwt.Authenticator.Auth.Exceptions;
 using Jwt.Authenticator.Auth.Interfaces;
-using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using System.Security.Claims;
 
@@ -27,7 +27,7 @@ namespace Jwt.Authenticator.Auth.Test
         [Test]
         public void GetTokenUserSuccesfully()
         {
-            var configuration = MockConfigurationBuilder.SetConfg("SecretKey_1111111111100000000011", "Test.com", ExpirationInSeconds);
+            var configuration = MockConfigurationBuilder.SetConfg("SecretKey_1111111111100000000011", "Test.com", ExpirationInSeconds, "https://localhost:5001");
             authenticatorService = new AuthenticatorService(configuration);
 
             var token = authenticatorService.GenerateAccessToken(claims);
@@ -38,7 +38,7 @@ namespace Jwt.Authenticator.Auth.Test
         [Test]
         public void AuthSuccessfullyByToken()
         {
-            var configuration = MockConfigurationBuilder.SetConfg("SecretKey_1111111111100000000011", "Test.com", ExpirationInSeconds);
+            var configuration = MockConfigurationBuilder.SetConfg("SecretKey_1111111111100000000011", "Test.com", ExpirationInSeconds, "https://localhost:5001");
             authenticatorService = new AuthenticatorService(configuration);
             var token = authenticatorService.GenerateAccessToken(claims);
 
@@ -60,7 +60,7 @@ namespace Jwt.Authenticator.Auth.Test
         [Test]
         public void GetArgumentOutOfRangeExceptionWhenSecretKeyIsTooShort()
         {
-            var configuration = MockConfigurationBuilder.SetConfg("SecretKey", "Test.com", ExpirationInSeconds);
+            var configuration = MockConfigurationBuilder.SetConfg("SecretKey", "Test.com", ExpirationInSeconds, "https://localhost:5001");
             authenticatorService = new AuthenticatorService(configuration);
 
             Action result = () => authenticatorService.GenerateAccessToken(claims);
@@ -72,7 +72,7 @@ namespace Jwt.Authenticator.Auth.Test
         [Test]
         public void ExpiresTokenInOneHour()
         {
-            var configuration = MockConfigurationBuilder.SetConfg("SecretKey_1111111111100000000011", "Test.com", ExpirationInSeconds);
+            var configuration = MockConfigurationBuilder.SetConfg("SecretKey_1111111111100000000011", "Test.com", ExpirationInSeconds, "https://localhost:5001");
             authenticatorService = new AuthenticatorService(configuration);
 
             var token = authenticatorService.GenerateAccessToken(claims);
@@ -83,7 +83,7 @@ namespace Jwt.Authenticator.Auth.Test
         [Test]
         public void GetRefreshTokenUserSuccesfully()
         {
-            var configuration = MockConfigurationBuilder.SetConfg("SecretKey_1111111111100000000011", "Test.com", ExpirationInSeconds);
+            var configuration = MockConfigurationBuilder.SetConfg("SecretKey_1111111111100000000011", "Test.com", ExpirationInSeconds, "https://localhost:5001");
             authenticatorService = new AuthenticatorService(configuration);
 
             var refresh_token = authenticatorService.GenerateRefreshToken();

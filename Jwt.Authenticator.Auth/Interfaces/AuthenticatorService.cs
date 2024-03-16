@@ -13,20 +13,29 @@ namespace Jwt.Authenticator.Auth.Interfaces
     {
         private IConfiguration _config;
         private JwtSecurityTokenHandler tokenHandler;
+        private byte[]? _key;
+        private int? _expirationInSeconds;
+        private string _issuer;
+        private string _audience;
+
         public AuthenticatorService(IConfiguration config)
         {
             _config = config;
             tokenHandler = new JwtSecurityTokenHandler();
+            _key = (byte[]?)Encoding.ASCII.GetBytes(_config["Jwt:Key"]);
+            _expirationInSeconds = int.Parse(_config["Jwt:Expiration"]);
+            _issuer = _config["Jwt:Issuer"];
+            _audience = _config["Jwt:Audience"];
         }
 
-        public string ValidateJwtToken(string token)
+        public string? ValidateJwtToken(string token)
         {
             if (string.IsNullOrWhiteSpace(token))
             {
                 throw new NullTokenException("Token must not be null");
             }
 
-            TokenValidationParameters validationParameters = GetTokenValidationParameters((byte[]?)Encoding.ASCII.GetBytes(_config["Jwt:Key"]));
+            TokenValidationParameters validationParameters = GetTokenValidationParameters();
             SecurityToken validatedToken;
             var principal = GetClaimsPrincipal(token, tokenHandler, validationParameters, out validatedToken);
 
@@ -35,22 +44,21 @@ namespace Jwt.Authenticator.Auth.Interfaces
                 return null;
             }
             var jwtToken = (JwtSecurityToken)validatedToken;
-            return principal.Claims.Where(c => c.Type == ClaimTypes.Name).Select(c => c.Value).SingleOrDefault();
+            return principal?.Claims?.Where(c => c.Type == ClaimTypes.Name).Select(c => c.Value).SingleOrDefault();
         }
 
         public Token GenerateAccessToken(IEnumerable<Claim> userClaims)
         {
             try
             {
-                int expirationInSeconds = int.Parse(_config["Jwt:Expiration"]);
-                var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+                var securityKey = new SymmetricSecurityKey(_key);
                 var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-                var tokenOptions = GetTokenOptions(expirationInSeconds, credentials, userClaims);
+                var tokenOptions = GetTokenOptions((int)_expirationInSeconds, credentials, userClaims);
 
                 return new Token
                 {
                     access_token = new JwtSecurityTokenHandler().WriteToken(tokenOptions),
-                    expires_in = expirationInSeconds,
+                    expires_in = (int)_expirationInSeconds,
                     refresh_token = GenerateRefreshToken(),
                 };
             }
@@ -76,8 +84,8 @@ namespace Jwt.Authenticator.Auth.Interfaces
         private JwtSecurityToken GetTokenOptions(int expirationInMinutes, SigningCredentials credentials, IEnumerable<Claim> claims)
         {
             return new JwtSecurityToken(
-                   issuer: _config["Jwt:Issuer"],
-                   audience: _config["Jwt:Audience"],
+                   issuer: _issuer,
+                   audience: _audience,
                    claims: claims,
                    expires: DateTime.Now.AddMinutes(expirationInMinutes),
                    signingCredentials: credentials
@@ -92,12 +100,12 @@ namespace Jwt.Authenticator.Auth.Interfaces
             return tokenHandler.ValidateToken(token, validationParameters, out validatedToken);
         }
 
-        private static TokenValidationParameters GetTokenValidationParameters(byte[] key)
+        private TokenValidationParameters GetTokenValidationParameters()
         {
             return new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
+                IssuerSigningKey = new SymmetricSecurityKey(_key),
                 ValidateIssuer = false,
                 ValidateAudience = false,
                 ClockSkew = TimeSpan.Zero

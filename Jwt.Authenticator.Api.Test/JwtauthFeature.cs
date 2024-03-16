@@ -26,7 +26,6 @@ namespace Jwt.Authenticator.Api.Test
             var token = responsePost.Content.ReadAsStringAsync().Result;
 
             var tokenResult = JsonConvert.DeserializeObject<TokenDto>(token);
-       
 
             var settings = new VerifySettings();
 

@@ -9,7 +9,7 @@ namespace Jwt.Authenticator.Api.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TokenDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult> Post()
+        public async Task<ActionResult> Post([FromBody] UserDto user)
         {
             return Ok(new TokenDto("kaskjjhd", "kajsdlk", "3600"));
         }

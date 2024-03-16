@@ -3,9 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34221.43
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jwt.Authenticator.Auth", "Jwt.Authenticator.Auth\Jwt.Authenticator.Auth.csproj", "{98A085B7-AEA1-4F5C-93CF-A6556323D673}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jwt.Authenticator.Auth", "Jwt.Authenticator.Auth\Jwt.Authenticator.Auth.csproj", "{98A085B7-AEA1-4F5C-93CF-A6556323D673}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jwt.Authenticator.Auth.Test", "Jwt.Authenticator.Auth.Test\Jwt.Authenticator.Auth.Test.csproj", "{8B495336-1461-4972-8DE9-09DF4026299D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jwt.Authenticator.Auth.Test", "Jwt.Authenticator.Auth.Test\Jwt.Authenticator.Auth.Test.csproj", "{8B495336-1461-4972-8DE9-09DF4026299D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jwt.Authenticator.Api", "Jwt.Authenticator.Api\Jwt.Authenticator.Api.csproj", "{F51B4498-5AF1-4A7C-883F-B5E505860AC4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{09BD9A98-4950-4C72-A97B-BF803DEDDD68}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{65BE98E7-55D4-42E6-89D0-E49EB88DF3F8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jwt.Authenticator.Api.Test", "Jwt.Authenticator.Api.Test\Jwt.Authenticator.Api.Test.csproj", "{285FA7B3-240D-4C53-A78A-825B9E80022C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,9 +29,23 @@ Global
 		{8B495336-1461-4972-8DE9-09DF4026299D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8B495336-1461-4972-8DE9-09DF4026299D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8B495336-1461-4972-8DE9-09DF4026299D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F51B4498-5AF1-4A7C-883F-B5E505860AC4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F51B4498-5AF1-4A7C-883F-B5E505860AC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F51B4498-5AF1-4A7C-883F-B5E505860AC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F51B4498-5AF1-4A7C-883F-B5E505860AC4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{285FA7B3-240D-4C53-A78A-825B9E80022C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{285FA7B3-240D-4C53-A78A-825B9E80022C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{285FA7B3-240D-4C53-A78A-825B9E80022C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{285FA7B3-240D-4C53-A78A-825B9E80022C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{98A085B7-AEA1-4F5C-93CF-A6556323D673} = {09BD9A98-4950-4C72-A97B-BF803DEDDD68}
+		{8B495336-1461-4972-8DE9-09DF4026299D} = {65BE98E7-55D4-42E6-89D0-E49EB88DF3F8}
+		{F51B4498-5AF1-4A7C-883F-B5E505860AC4} = {09BD9A98-4950-4C72-A97B-BF803DEDDD68}
+		{285FA7B3-240D-4C53-A78A-825B9E80022C} = {65BE98E7-55D4-42E6-89D0-E49EB88DF3F8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8F858F4E-E0EC-44EF-A115-10FF198C982F}

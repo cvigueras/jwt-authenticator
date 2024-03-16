@@ -13,19 +13,16 @@ namespace Jwt.Authenticator.Auth.Interfaces
     {
         private IConfiguration _config;
         private JwtSecurityTokenHandler tokenHandler;
-        private byte[]? _key;
-        private int? _expirationInSeconds;
-        private string _issuer;
-        private string _audience;
+        private ConfigurationOptions _configuration;
 
         public AuthenticatorService(IConfiguration config)
         {
             _config = config;
             tokenHandler = new JwtSecurityTokenHandler();
-            _key = (byte[]?)Encoding.ASCII.GetBytes(_config["Jwt:Key"]);
-            _expirationInSeconds = int.Parse(_config["Jwt:Expiration"]);
-            _issuer = _config["Jwt:Issuer"];
-            _audience = _config["Jwt:Audience"];
+            _configuration = ConfigurationOptions.Create((byte[]?)Encoding.ASCII.GetBytes(_config["Jwt:Key"]),
+                                                         int.Parse(_config["Jwt:Expiration"]),
+                                                         _config["Jwt:Issuer"],
+                                                         _config["Jwt:Audience"]);
         }
 
         public string? ValidateJwtToken(string token)
@@ -51,14 +48,14 @@ namespace Jwt.Authenticator.Auth.Interfaces
         {
             try
             {
-                var securityKey = new SymmetricSecurityKey(_key);
+                var securityKey = new SymmetricSecurityKey(_configuration.Key);
                 var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-                var tokenOptions = GetTokenOptions((int)_expirationInSeconds, credentials, userClaims);
+                var tokenOptions = GetTokenOptions((int)_configuration.ExpirationInSeconds, credentials, userClaims);
 
                 return new Token
                 {
                     access_token = new JwtSecurityTokenHandler().WriteToken(tokenOptions),
-                    expires_in = (int)_expirationInSeconds,
+                    expires_in = (int)_configuration.ExpirationInSeconds,
                     refresh_token = GenerateRefreshToken(),
                 };
             }
@@ -81,13 +78,13 @@ namespace Jwt.Authenticator.Auth.Interfaces
             }
         }
 
-        private JwtSecurityToken GetTokenOptions(int expirationInMinutes, SigningCredentials credentials, IEnumerable<Claim> claims)
+        private JwtSecurityToken GetTokenOptions(int expirationInSeconds, SigningCredentials credentials, IEnumerable<Claim> claims)
         {
             return new JwtSecurityToken(
-                   issuer: _issuer,
-                   audience: _audience,
+                   issuer: _configuration.Issuer,
+                   audience: _configuration.Audience,
                    claims: claims,
-                   expires: DateTime.Now.AddMinutes(expirationInMinutes),
+                   expires: DateTime.Now.AddMinutes(expirationInSeconds),
                    signingCredentials: credentials
                );
         }
@@ -105,7 +102,7 @@ namespace Jwt.Authenticator.Auth.Interfaces
             return new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(_key),
+                IssuerSigningKey = new SymmetricSecurityKey(_configuration.Key),
                 ValidateIssuer = false,
                 ValidateAudience = false,
                 ClockSkew = TimeSpan.Zero

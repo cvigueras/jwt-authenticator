@@ -1,7 +1,6 @@
 using Jwt.Authenticator.Api.Test.Fixtures;
 using Jwt.Authenticator.Api.Test.Startup;
 using Newtonsoft.Json;
-using NUnit.Framework.Internal;
 
 namespace Jwt.Authenticator.Api.Test
 {

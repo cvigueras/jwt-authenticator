@@ -23,3 +23,11 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+namespace Jwt.Authenticator.Api
+{
+    public partial class Program
+    {
+
+    }
+}

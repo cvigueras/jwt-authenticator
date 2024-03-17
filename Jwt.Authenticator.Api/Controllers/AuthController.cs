@@ -48,9 +48,9 @@ namespace Jwt.Authenticator.Api.Controllers
 
             var principal = _authenticatorService.ValidateJwtToken(request.access_token);
             var user = _userRepository.GetByUserName(principal.Identity.Name);
-            if (user == null)
+            if (user == null || request.refresh_token == null)
             {
-                return Unauthorized("User or password incorrect!");
+                return Unauthorized("Refresh token incorrect!");
             }
             return Ok(_authenticatorService.GenerateAccessToken(GetClaims(user)));
         }

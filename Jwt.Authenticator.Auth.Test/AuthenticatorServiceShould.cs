@@ -44,7 +44,7 @@ namespace Jwt.Authenticator.Auth.Test
 
             var result = authenticatorService.ValidateJwtToken(token.access_token);
 
-            result.Should().Be(user);
+            result.Identity.Name.Should().Be(user);
         }
 
         [Test]

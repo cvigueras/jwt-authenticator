@@ -20,11 +20,9 @@ namespace Jwt.Authenticator.Api.Test.Fixtures
 
         public async Task<HttpResponseMessage> Post(string requestUri, string json)
         {
-            var responsePost = await client!.PostAsync(requestUri, new StringContent(json,
+            return await client!.PostAsync(requestUri, new StringContent(json,
                 Encoding.Default,
                 MediaType));
-            responsePost.EnsureSuccessStatusCode();
-            return responsePost;
         }
 
         public async Task<HttpResponseMessage> Put(string requestUri, string json)

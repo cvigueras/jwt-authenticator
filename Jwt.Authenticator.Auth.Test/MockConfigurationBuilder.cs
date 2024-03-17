@@ -5,9 +5,17 @@ namespace Jwt.Authenticator.Auth.Test
 {
     public static class MockConfigurationBuilder
     {
-        public static ConfigurationOptions SetConfg(string key, string issuer, int expiration, string audience)
+        public static IConfiguration SetConfg(string secret, string issuer, int expiration)
         {
-            return ConfigurationOptions.Create(key, expiration, issuer, audience);
+            var inMemorySettings = new Dictionary<string, string> {
+                {"JWT:Issuer", issuer },
+                {"JWT:Secret", secret },
+                {"JWT:Expiration", expiration.ToString() },
+                {"JWT:Audience", "https://localhost:5001" },
+            };
+            return new ConfigurationBuilder()
+            .AddInMemoryCollection(inMemorySettings)
+                            .Build();
         }
     }
 }

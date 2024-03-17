@@ -1,22 +1,25 @@
 ﻿using Jwt.Authenticator.Auth.Exceptions;
+using Jwt.Authenticator.Auth.Interfaces;
 using Jwt.Authenticator.Auth.Models;
-using Jwt.Authenticator.Auth.Services;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 
-namespace Jwt.Authenticator.Auth.Interfaces
+namespace Jwt.Authenticator.Auth.Services
 {
     public class AuthenticatorService : IAuthenticatorService
     {
         private JwtSecurityTokenHandler tokenHandler;
+        private IConfiguration _configuration;
         private ConfigurationOptions _configurationOptions;
 
-        public AuthenticatorService(ConfigurationOptions options)
+        public AuthenticatorService(IConfiguration configuration)
         {
             tokenHandler = new JwtSecurityTokenHandler();
-            _configurationOptions = options;
+            _configuration = configuration;
+            _configurationOptions = ConfigurationOptions.Create(_configuration["JWT:Secret"], int.Parse(_configuration["JWT:Expiration"]), _configuration["JWT:Issuer"], _configuration["JWT:Audience"]);
         }
 
         public string? ValidateJwtToken(string token)
@@ -42,7 +45,7 @@ namespace Jwt.Authenticator.Auth.Interfaces
         {
             try
             {
-                var securityKey = new SymmetricSecurityKey(_configurationOptions.Key);
+                var securityKey = new SymmetricSecurityKey(_configurationOptions.Secret);
                 var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
                 var tokenOptions = GetTokenOptions((int)_configurationOptions?.ExpirationInSeconds, credentials, userClaims);
 
@@ -96,7 +99,7 @@ namespace Jwt.Authenticator.Auth.Interfaces
             return new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(_configurationOptions.Key),
+                IssuerSigningKey = new SymmetricSecurityKey(_configurationOptions.Secret),
                 ValidateIssuer = false,
                 ValidateAudience = false,
                 ClockSkew = TimeSpan.Zero

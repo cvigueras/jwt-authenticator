@@ -4,23 +4,23 @@ namespace Jwt.Authenticator.Auth.Models
 {
     public class ConfigurationOptions
     {
-        public byte[]? Key { get; }
+        public byte[]? Secret { get; }
         public int? ExpirationInSeconds { get; }
         public string? Issuer { get; }
         public string? Audience { get; }
 
 
-        private ConfigurationOptions(string key, int? expirationInSeconds, string issuer, string audience)
+        private ConfigurationOptions(string secret, int? expirationInSeconds, string issuer, string audience)
         {
-            Key = Encoding.UTF8.GetBytes(key);
+            Secret = Encoding.UTF8.GetBytes(secret);
             ExpirationInSeconds = expirationInSeconds;
             Issuer = issuer;
             Audience = audience;
         }
 
-        public static ConfigurationOptions Create(string key, int? expirationInSeconds, string issuer, string audience)
+        public static ConfigurationOptions Create(string secret, int? expirationInSeconds, string issuer, string audience)
         {
-            return new ConfigurationOptions(key, expirationInSeconds, issuer, audience);
+            return new ConfigurationOptions(secret, expirationInSeconds, issuer, audience);
         }
     }
 }

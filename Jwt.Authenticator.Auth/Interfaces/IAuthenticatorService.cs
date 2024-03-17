@@ -1,7 +1,7 @@
 ﻿using Jwt.Authenticator.Auth.Models;
 using System.Security.Claims;
 
-namespace Jwt.Authenticator.Auth.Services
+namespace Jwt.Authenticator.Auth.Interfaces
 {
     public interface IAuthenticatorService
     {

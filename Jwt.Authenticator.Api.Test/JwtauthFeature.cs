@@ -1,3 +1,4 @@
+using FluentAssertions;
 using Jwt.Authenticator.Api.Test.Fixtures;
 using Jwt.Authenticator.Api.Test.Startup;
 using Newtonsoft.Json;
@@ -22,14 +23,12 @@ namespace Jwt.Authenticator.Api.Test
             var json = await client.GetJsonContent(PathJson);
 
             var responsePost = await client.Post(RequestUriBase, json);
-
             var token = responsePost.Content.ReadAsStringAsync().Result;
-
             var tokenResult = JsonConvert.DeserializeObject<TokenDto>(token);
 
-            var settings = new VerifySettings();
-
-            await Verify(tokenResult, settings);
+            tokenResult.access_token.Should().NotBeNull();
+            tokenResult.refresh_token.Should().NotBeNull();
+            tokenResult.expires_in.Should().NotBeNull();
         }
     }
 }

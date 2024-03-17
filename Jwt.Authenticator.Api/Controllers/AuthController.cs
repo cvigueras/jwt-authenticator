@@ -25,9 +25,10 @@ namespace Jwt.Authenticator.Api.Controllers
 
 
         [HttpPost]
+        [Route("GetToken")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Token))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<Token>> Post([FromBody] UserDto request)
+        public async Task<ActionResult<Token>> GetToken([FromBody] UserDto request)
         {
             var user = _userRepository.GetByUserName(request.userName, request.password);
             if(user == null)

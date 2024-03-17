@@ -5,7 +5,7 @@ namespace Jwt.Authenticator.Auth.Interfaces
 {
     public interface IAuthenticatorService
     {
-        string ValidateJwtToken(string token);
+        ClaimsPrincipal ValidateJwtToken(string token);
         Token GenerateAccessToken(IEnumerable<Claim> userClaims);
         string GenerateRefreshToken();
     }

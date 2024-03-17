@@ -22,7 +22,7 @@ namespace Jwt.Authenticator.Auth.Services
             _configurationOptions = ConfigurationOptions.Create(_configuration["JWT:Secret"], int.Parse(_configuration["JWT:Expiration"]), _configuration["JWT:Issuer"], _configuration["JWT:Audience"]);
         }
 
-        public string? ValidateJwtToken(string token)
+        public ClaimsPrincipal ValidateJwtToken(string token)
         {
             if (string.IsNullOrWhiteSpace(token))
             {
@@ -38,7 +38,7 @@ namespace Jwt.Authenticator.Auth.Services
                 return null;
             }
             var jwtToken = (JwtSecurityToken)validatedToken;
-            return principal?.Claims?.Where(c => c.Type == ClaimTypes.Name).Select(c => c.Value).SingleOrDefault();
+            return principal;
         }
 
         public Token GenerateAccessToken(IEnumerable<Claim> userClaims)

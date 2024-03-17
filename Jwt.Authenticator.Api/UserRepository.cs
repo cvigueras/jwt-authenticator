@@ -14,9 +14,14 @@
             };
         }
 
-        public User? GetByUserName(string userName, string password)
+        public User? GetByUserNameAndPassword(string userName, string password)
         {
             return users.Where(x => x.UserName == userName && x.Password == password).FirstOrDefault();
+        }        
+        
+        public User? GetByUserName(string userName)
+        {
+            return users.Where(x => x.UserName == userName).FirstOrDefault();
         }
     }
 }

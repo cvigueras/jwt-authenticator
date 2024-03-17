@@ -32,7 +32,7 @@ namespace Jwt.Authenticator.Api.Controllers
             var user = _userRepository.GetByUserName(request.userName, request.password);
             if(user == null)
             {
-               return Unauthorized();
+               return Unauthorized("User or password incorrect!");
             }
             return Ok(_authenticatorService.GenerateAccessToken(GetClaims(user)));
         }

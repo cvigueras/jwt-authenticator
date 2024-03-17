@@ -2,6 +2,7 @@
 using Jwt.Authenticator.Auth.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 using System.Security.Claims;
 
 namespace Jwt.Authenticator.Api.Controllers
@@ -29,9 +30,11 @@ namespace Jwt.Authenticator.Api.Controllers
         public async Task<ActionResult<Token>> Post([FromBody] UserDto request)
         {
             var user = _userRepository.GetByUserName(request.userName, request.password);
-            var claims = GetClaims(user);
-            var token = _authenticatorService.GenerateAccessToken(claims);
-            return Ok(token);
+            if(user == null)
+            {
+               return Unauthorized();
+            }
+            return Ok(_authenticatorService.GenerateAccessToken(GetClaims(user)));
         }
 
         private Claim[] GetClaims(User user)

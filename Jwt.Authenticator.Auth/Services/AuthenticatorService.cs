@@ -81,7 +81,8 @@ namespace Jwt.Authenticator.Auth.Services
                    issuer: _configurationOptions.Issuer,
                    audience: _configurationOptions.Audience,
                    claims: claims,
-                   expires: DateTime.Now.AddMinutes(expirationInSeconds),
+                   notBefore: DateTime.Now,
+                   expires: DateTime.Now.AddSeconds(expirationInSeconds),
                    signingCredentials: credentials
                );
         }

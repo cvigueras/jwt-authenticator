@@ -15,13 +15,10 @@ namespace Jwt.Authenticator.Api.Controllers
         public IConfiguration Configuration { get; }
         public IAuthenticatorService _authenticatorService { get; }
 
-        private UserRepository _userRepository;
-
         public AuthController(IConfiguration configuration, IAuthenticatorService authenticatorService)
         {
             Configuration = configuration;
             _authenticatorService = authenticatorService;
-            _userRepository = new UserRepository();
         }
 
 
@@ -31,12 +28,15 @@ namespace Jwt.Authenticator.Api.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<Token>> GetToken([FromBody] UserDto request)
         {
-            var user = _userRepository.GetByUserNameAndPassword(request.userName, request.password);
+            var user = UserRepository.GetByUserNameAndPassword(request.userName, request.password);
             if(user == null)
             {
                return Unauthorized("User or password incorrect!");
             }
-            return Ok(_authenticatorService.GenerateAccessToken(GetClaims(user)));
+            var token = _authenticatorService.GenerateAccessToken(GetClaims(user));
+            user.RefreshToken = token.refresh_token;
+            UserRepository.SetTokenToUser(user);
+            return Ok(token);
         }
 
         [HttpPost]
@@ -47,8 +47,8 @@ namespace Jwt.Authenticator.Api.Controllers
         {
 
             var principal = _authenticatorService.ValidateJwtToken(request.access_token);
-            var user = _userRepository.GetByUserName(principal.Identity.Name);
-            if (user == null || request.refresh_token == null)
+            var user = UserRepository.GetByUserName(principal.Identity.Name);
+            if (user == null || request.refresh_token == null || user.RefreshToken != request.refresh_token)
             {
                 return Unauthorized("Refresh token incorrect!");
             }

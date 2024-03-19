@@ -5,6 +5,7 @@
         public string UserName { get; }
         public string Password { get; }
         public string Email { get; }
+        public string RefreshToken { get; set; }
 
         private User(string userName, string password, string email)
         {
